@@ -10,14 +10,27 @@ as well.
 Don't forget: your strategy must be deterministic and pure.
 """
 
+import datetime
+
 PLAYER_NAME = 'Love chips and coke' # Change this line!
 
+probility = [[0 for column in range(101)]for row in range(101)]
+visited = [[0 for column in range(101)]for row in range(101)]
+rolls = [[0 for column in range(101)] for row in range(101)]
+num_count = [[0 for column in range(61)] for row in range(11)]
+
+
 def final_strategy(score, opponent_score):
-    probility = [[0 for column in range(101)]for row in range(101)]
-    visited = [[0 for column in range(101)]for row in range(101)]
-    rolls = [[0 for column in range(101)] for row in range(101)]
-    num_count = [[0 for column in range(61)] for row in range(11)]
+    if score == 0:
+        start = datetime.datetime.now()
+        get_strategy()
+        end = datetime.datetime.now()
+        print (end-start)
+    return rolls[score][opponent_score]
+
+def get_strategy():
     def search(s1, s2):
+        print("search", s1, s2)
         # 有分数为100以上的时候
         if s1 >= 100:
             probility[100][s2] = 1
@@ -67,6 +80,7 @@ def final_strategy(score, opponent_score):
         return probility[s1][s2]
     #用于搜索对手的值
     def search_opponent(s1, s2):
+        print("opponent", s1, s2)
         if s1 >= 100:
             return 0
         if visited[s2][s1]:
@@ -87,14 +101,19 @@ def final_strategy(score, opponent_score):
     for i in range(200, 1, -1):
         for j in range(max(0, i-100), min(101,i+1)):
             if not visited[i-j][j]:
-                search(i-j, j)
+                print(i-j,j)
+                if visited[j][i-j]:
+                    probility[i-j][j] = probility[j][i-j]
+                    visited[i-j][j] = visited[j][i-j]
+                    rolls[i-j][j] = rolls[j][i-j]
+                else:
+                    search(i-j, j)
     """
     for i in range(101):
         for j in range(101):
             if not visited[i][j]:
                 search(i, j)
     """
-    return rolls[score][opponent_score]
 
 def is_swap(player_score, opponent_score):
     """
