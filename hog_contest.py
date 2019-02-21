@@ -18,6 +18,7 @@ def final_strategy(score, opponent_score):
     rolls = [[0 for column in range(101)] for row in range(101)]
     num_count = [[0 for column in range(61)] for row in range(11)]
     def search(s1, s2):
+        #print("search", s1, s2)
         if s1 >= 100:
             probility[100][s2] = 1
             visited[100][s2] = 1
@@ -40,10 +41,9 @@ def final_strategy(score, opponent_score):
                     rolls[s1][s2] = roll
             else:
                 pro = 0
-                for increasement in (roll, roll*6+1):
+                for increasement in range(roll, roll*6+1):
                     new_s1 = s1 + increasement
                     new_s2 = search_opponent(new_s1, s2)
-                    print(roll, increasement)
                     pro += search(new_s1, new_s2) *  num_count[roll][increasement]
                 pro /= 6 ** roll
                 if pro > probility[s1][s2]:
@@ -51,6 +51,7 @@ def final_strategy(score, opponent_score):
                     rolls[s1][s2] = roll
         return probility[s1][s2]
     def search_opponent(s1, s2):
+        #print("opponent", s1, s2)
         if s1 >= 100:
             return 0
         if visited[s2][s1]:
@@ -66,10 +67,16 @@ def final_strategy(score, opponent_score):
                     for k in range(max(0, j-6), j):
                         num_count[i][j] += num_count[i-1][k]
     counting_num()
+    for i in range(100, -1, -1):
+        for j in range(100, -1, -1):
+            if not visited[i][j]:
+                search(i, j)
+    """
     for i in range(101):
         for j in range(101):
             if not visited[i][j]:
                 search(i, j)
+    """
     return rolls[score][opponent_score]
 
 def is_swap(player_score, opponent_score):
