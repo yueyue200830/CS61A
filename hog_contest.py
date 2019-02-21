@@ -43,6 +43,7 @@ def final_strategy(score, opponent_score):
                 for increasement in (roll, roll*6+1):
                     new_s1 = s1 + increasement
                     new_s2 = search_opponent(new_s1, s2)
+                    print(roll, increasement)
                     pro += search(new_s1, new_s2) *  num_count[roll][increasement]
                 pro /= 6 ** roll
                 if pro > probility[s1][s2]:
@@ -50,25 +51,21 @@ def final_strategy(score, opponent_score):
                     rolls[s1][s2] = roll
         return probility[s1][s2]
     def search_opponent(s1, s2):
+        if s1 >= 100:
+            return 0
         if visited[s2][s1]:
             return rolls[s2][s1]
         search(s2, s1)
         return rolls[s2][s1]
     def counting_num():
         num_count[0][0] = 1
-        print("0000", num_count[0][0])
         for i in range(1, 11):
             for j in range(i * 6 + 1):
                 num_count[i][j] = 0
                 if j >= i:
                     for k in range(max(0, j-6), j):
-                        print(i,j,k,num_count[i-1][k])
                         num_count[i][j] += num_count[i-1][k]
-                print(num_count[i][j])
     counting_num()
-    for i in range(11):
-        for j in range(i*6+1):
-            print(i, j, num_count[i][j])
     for i in range(101):
         for j in range(101):
             if not visited[i][j]:
