@@ -13,10 +13,10 @@ Don't forget: your strategy must be deterministic and pure.
 PLAYER_NAME = 'Love chips and coke' # Change this line!
 
 def final_strategy(score, opponent_score):
-    probility = [[0]*101]*101
-    visited = [[0]*101]*101
-    rolls = [[0]*101]*101
-    num_count = [[0]*61]*11
+    probility = [[0 for column in range(101)]for row in range(101)]
+    visited = [[0 for column in range(101)]for row in range(101)]
+    rolls = [[0 for column in range(101)] for row in range(101)]
+    num_count = [[0 for column in range(61)] for row in range(11)]
     def search(s1, s2):
         if s1 >= 100:
             probility[100][s2] = 1
