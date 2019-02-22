@@ -25,6 +25,7 @@ def final_strategy(score, opponent_score):
     get_strategy()
     end = datetime.datetime.now()
     print("time cost", end-start)
+
     f = open("output.txt", 'w+')
     print("[", file=f)
     for i in range(101):
@@ -36,11 +37,13 @@ def final_strategy(score, opponent_score):
                 print(", {0}".format(rolls[i][j]), end='', file=f)
         print("],", file=f)
     print("]", file=f)
+    
     return rolls[score][opponent_score]
 
 def get_strategy():
     def search(s1, s2):
         # 有分数为100以上的时候
+        #print("search", s1, s2)
         if s1 >= 100 and s2 >= 100:
             probility[100][100] = 1
             visited[100][100] = 1
@@ -52,10 +55,11 @@ def get_strategy():
             rolls[100][s2] = 1
             return 1
         if s2 >= 100:
-            probility[s1][100] = 1
+            probility[s1][100] = 0
             visited[s1][100] = 1
             rolls[s1][100] = 1
             return 0
+        #print("not finished")
         # 如果有访问过
         if visited[s1][s2]:
             return probility[s1][s2]
@@ -66,17 +70,41 @@ def get_strategy():
             if roll == 0:
                 # 分别获取双方的投的数量，然后search获取这个情况下的概率
                 new_s1 = s1 + free_bacon(s2)
-                pro2 = get_opponent(new_s1, s2)
+                pro2 = 0
+                if new_s1 >= 100:
+                    pro2  = 1
+                else:
+                    new_s2 = s2
+                    if is_swap(new_s1, new_s2):
+                        new_s1, new_s2 = new_s2, new_s1
+                    pro2 = get_opponent(new_s1, new_s2)
                 #对比概率大小，因为pro初始是0，这个其实会覆盖的
                 if pro2 > probility[s1][s2]:
+                    #print(s1, s2, pro2)
                     probility[s1][s2] = pro2
                     rolls[s1][s2] = roll
             else:
-                pro = get_opponent(s1 + 1, s2) * num_count[roll][1]
-                for increasement in range(roll, roll*6+1):
+                new_s1 = s1 + 1
+                pro = 0
+                if new_s1 >= 100:
+                    pro = num_count[roll][1]
+                else:
+                    new_s2 = s2
+                    if is_swap(new_s1, new_s2):
+                        new_s1, new_s2 = new_s2, new_s1
+                    pro = get_opponent(new_s1, new_s2) * num_count[roll][1]
+                for increasement in range(max(2,roll), roll*6+1):
                     new_s1 = s1 + increasement
-                    pro2 = get_opponent(new_s1, s2)
-                    pro += pro2 * num_count[roll][increasement]
+                    if new_s1 >= 100:
+                        pro += num_count[roll][increasement]
+                    else:
+                        new_s2 = s2
+                        if is_swap(new_s1, new_s2):
+                            new_s1, new_s2 = new_s2, new_s1
+                        pro2 = get_opponent(new_s1, new_s2)
+                        pro += pro2 * num_count[roll][increasement]
+                    #print("pro2=", pro)
+                #print("roll=", roll, pro)
                 pro /= 6 ** roll
                 if pro > probility[s1][s2]:
                     probility[s1][s2] = pro
@@ -86,12 +114,29 @@ def get_strategy():
         roll2 = search_opponent(s1, s2)
         pro2 = 0
         if roll2 == 0:
-            pro2 = search(s1, s2+free_bacon(s1))
+            new_s2 = s2+free_bacon(s1)
+            if new_s2 >= 100:
+                pro2 = 1
+            else:
+                if is_swap(s1, new_s2):
+                    pro2 = search(new_s2, s1)
+                else:
+                    pro2 = search(s1, new_s2)
+            #print(pro2)
         else:
-            for inc in range(roll2, roll2*6+1):
-                pro2 += search(s1, s2+inc) * num_count[roll2][inc]
+            for inc in range(max(2, roll2), roll2*6+1):
+                new_s2 = s2 + inc
+                if new_s2 >= 100:
+                    pro2 += num_count[roll2][inc]
+                else:
+                    if is_swap(s1, s2+inc):
+                        pro2 += search(s2+inc, s1) * num_count[roll2][inc]
+                    else:
+                        pro2 += search(s1, s2+inc) * num_count[roll2][inc]
+                #print(pro2)
             pro2 /= 6.0 ** roll2
-        return pro2
+        #print("opp",s1, s2, pro2)
+        return 1-pro2
     #用于搜索对手的值
     def search_opponent(s1, s2):
         if s1 >= 100:
@@ -115,11 +160,17 @@ def get_strategy():
                             continue
                         num_count[i][j] += num_count[i-1][k]
     counting_num()
+    """
+    for i in range(11):
+        for j in range(61):
+            print(i, j, num_count[i][j])
+    """
     #从后往前遍历search
     for i in range(200, 1, -1):
         for j in range(max(0, i-100), min(101,i+1)):
             if not visited[i-j][j]:
                 search(i-j, j)
+            #print("pro=", i-j, j, rolls[i-j][j], probility[i-j][j])
     rolls[0][0] = 0
 
 def is_swap(player_score, opponent_score):
