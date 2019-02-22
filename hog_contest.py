@@ -27,6 +27,7 @@ def final_strategy(score, opponent_score):
     print("time cost", end-start)
 
     f = open("output.txt", 'w+')
+    """
     print("[", file=f)
     for i in range(101):
         print("[", end='',file=f)
@@ -37,7 +38,7 @@ def final_strategy(score, opponent_score):
                 print(", {0}".format(rolls[i][j]), end='', file=f)
         print("],", file=f)
     print("]", file=f)
-    
+    """
     return rolls[score][opponent_score]
 
 def get_strategy():
@@ -100,8 +101,8 @@ def get_strategy():
                         pro2 = get_opponent(new_s1, new_s2)
                         pro += pro2 * num_count[roll][increasement]
                     #print("pro2=", pro)
-                #print("roll=", roll, pro)
                 pro /= 6 ** roll
+                print("roll=", roll, pro)
                 if pro > probility[s1][s2]:
                     probility[s1][s2] = pro
                     rolls[s1][s2] = roll
@@ -174,7 +175,7 @@ def get_strategy():
         for j in range(max(0, i-100), min(101,i+1)):
             if not visited[i-j][j]:
                 search(i-j, j)
-            #print("pro=", i-j, j, rolls[i-j][j], probility[i-j][j])
+            print("pro=", i-j, j, rolls[i-j][j], probility[i-j][j])
     rolls[0][0] = 0
 
 def is_swap(player_score, opponent_score):
