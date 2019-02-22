@@ -68,7 +68,6 @@ def get_strategy():
         for roll in range(11):
             # 投0的情况
             if roll == 0:
-                # 分别获取双方的投的数量，然后search获取这个情况下的概率
                 new_s1 = s1 + free_bacon(s2)
                 pro2 = 0
                 if new_s1 >= 100:
@@ -78,11 +77,8 @@ def get_strategy():
                     if is_swap(new_s1, new_s2):
                         new_s1, new_s2 = new_s2, new_s1
                     pro2 = get_opponent(new_s1, new_s2)
-                #对比概率大小，因为pro初始是0，这个其实会覆盖的
-                if pro2 > probility[s1][s2]:
-                    #print(s1, s2, pro2)
-                    probility[s1][s2] = pro2
-                    rolls[s1][s2] = roll
+                probility[s1][s2] = pro2
+                rolls[s1][s2] = roll
             else:
                 new_s1 = s1 + 1
                 pro = 0
@@ -119,20 +115,28 @@ def get_strategy():
                 pro2 = 1
             else:
                 if is_swap(s1, new_s2):
-                    pro2 = search(new_s2, s1)
-                else:
                     pro2 = search(s1, new_s2)
+                else:
+                    pro2 = search(new_s2, s1)
             #print(pro2)
         else:
+            new_s2 = s2 + 1
+            if new_s2 >= 100:
+                pro = num_count[roll][1]
+            else:
+                if is_swap(s1, new_s2):
+                    pro = search(s1, new_s2) * num_count[roll2][1]
+                else:
+                    pro = search(new_s2, s1) * num_count[roll2][1]
             for inc in range(max(2, roll2), roll2*6+1):
                 new_s2 = s2 + inc
                 if new_s2 >= 100:
                     pro2 += num_count[roll2][inc]
                 else:
                     if is_swap(s1, s2+inc):
-                        pro2 += search(s2+inc, s1) * num_count[roll2][inc]
-                    else:
                         pro2 += search(s1, s2+inc) * num_count[roll2][inc]
+                    else:
+                        pro2 += search(s2+inc, s1) * num_count[roll2][inc]
                 #print(pro2)
             pro2 /= 6.0 ** roll2
         #print("opp",s1, s2, pro2)
