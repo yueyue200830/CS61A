@@ -102,7 +102,7 @@ def get_strategy():
                         pro += pro2 * num_count[roll][increasement]
                     #print("pro2=", pro)
                 pro /= 6 ** roll
-                print("roll=", roll, pro)
+                #print("roll=", roll, pro)
                 if pro > probility[s1][s2]:
                     probility[s1][s2] = pro
                     rolls[s1][s2] = roll
